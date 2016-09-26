@@ -61,7 +61,15 @@ const  mutatiions = {
             state.activeNote = state.notes[0] || {};
         }
 
+    },
+
+    //设置当前激活的笔记
+    SET_ACTIVE_NOTE(state,note){
+        state.activeNote = note;
     }
+};
 
-
-}
+export default new Vuex.Store({
+    state,
+    mutatiions
+})

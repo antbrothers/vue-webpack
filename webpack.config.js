@@ -4,7 +4,7 @@ module.exports = {
     output : {
         path : './dist',
         publicPath : 'dist/',
-        filename : 'build.js'
+        filename : 'build.js',
     },
     //配置自动刷新，如果打开会是浏览器刷新而不是替换
     /*devServer : {
@@ -38,6 +38,9 @@ module.exports = {
         loaders:{
             js:'babel'
         }
+    },
+    babel: {
+        presets: ['es2015']
     },
     resolve : {
         // require 时省略的扩展名，如: require('app') 不需要app.js
