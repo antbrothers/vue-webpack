@@ -1,54 +1,75 @@
-var path = require ('path');
-module.exports = {
-    entry : './src/main.js',
-    output : {
-        path : './dist',
-        publicPath : 'dist/',
-        filename : 'build.js',
-    },
-    //配置自动刷新，如果打开会是浏览器刷新而不是替换
-    /*devServer : {
-        historyApiFallback: true,
-        hot: false,
-        inline: true,
-        grogress: true
-    },*/
-    module : {
-        loaders : [
-            // 转化ES6 语法
-            {
-                test: /\.js$/,
-                loader: 'babel-loader',
-                exclude: /node_modules/
-            },
-            //解析.vue文件
-            {
-                test:/\.vue$/,
-                loader:'vue'
-            },
-            //图片转化，小于8K自动转化为base64的编码
-            {
-                test: /\.(png|jpg|gif)$/,
-                loader:'url-loader?limit=8192'
-            }
+var path = require('path')
+var webpack = require('webpack')
 
-        ]
+module.exports = {
+    // 入口文件
+    entry: './src/main.js',
+    output: {
+        // 打包后输出的目录
+        path: path.resolve(__dirname, './dist'),
+        // 打包后资源文件的前缀
+        publicPath: '/dist/',
+        filename: 'build.js'
     },
-    vue:{
-        loaders:{
-            js:'babel'
+    resolve: {
+        // require时省略的扩展名，如：require('module') 不需要module.js
+        extensions: ['', '.js', '.vue'],
+        // 别名
+        alias: {
+            components: path.join(__dirname, './src/components')
         }
     },
-    babel: {
-        presets: ['es2015']
+    resolveLoader: {
+        root: path.join(__dirname, 'node_modules')
     },
-    resolve : {
-        // require 时省略的扩展名，如: require('app') 不需要app.js
-        extensions : ['','.js','.vue'],
-        //别名，可以直接使用别名来代表设置的路径以及其他
-        alias : {
-            filter : path.join(__dirname,'./src/filters'),
-            components : path.join(__dirname , './src/components')
-        }
-    }
+    // 处理不同后缀的文件
+    module: {
+        loaders: [{
+            test: /\.vue$/,
+            loader: 'vue'
+        }, {
+            test: /\.js$/,
+            loader: 'babel',
+            exclude: /node_modules/
+        }, {
+            test: /\.css$/,
+            loader: 'vue-style-loader!css-loader'
+        }, {
+            test: /\.less$/,
+            loader: 'vue-style-loader!css-loader!less-loader'
+        }, {
+            test: /\.(png|jpg|gif|svg)$/,
+            loader: 'file',
+            query: {
+                name: '[name].[ext]?[hash]'
+            }
+        }]
+    },
+    // webpack-dev-server配置
+    devServer: {
+        historyApiFallback: true,
+        noInfo: true
+    },
+    // 开启source-map，webpack有多种source-map，在官网文档可以查到
+    devtool: '#eval-source-map'
+}
+
+// 生产环境，运行npm run build则执行这里
+if (process.env.NODE_ENV === 'production') {
+    module.exports.devtool = '#source-map'
+    // http://vue-loader.vuejs.org/en/workflow/production.html
+    module.exports.plugins = (module.exports.plugins || []).concat([
+        // 环境变量
+        new webpack.DefinePlugin({
+            'process.env': {
+                NODE_ENV: '"production"'
+            }
+        }),
+        // 压缩代码
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false
+            }
+        })
+    ])
 }

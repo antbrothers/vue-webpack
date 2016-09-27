@@ -1,32 +1,66 @@
-/*
-import Vue from 'vue'
-import App from './components/app.vue'
+var Vue = require ('vue');
+var VueRouter = require('vue-router');
+var VueResource = require('vue-resource');
 
-new Vue({
-    el: 'body',
-    components:{App}
-});*/
+/*require('./css/home.css');*/
 
-import  Vue from 'vue';
-import App from './App.vue';
-import VueRouter from 'vue-router';
-import VueResource from 'vue-resource';
-
-//路由模块和http 模块
-Vue.use(VueResource);
+//实例化vue模块
 Vue.use(VueRouter);
+Vue.use(VueResource);
 
-const router = new VueRouter({
-    hashbang: false
+//创建一个空组件
+var app = Vue.extend({});
+
+//实例化VueRouter
+var router = new  VueRouter({
+    // 当hashbang的值为true时，所有的路径都会被格式化已#!开头，
+    hashbang: true,
+    history: false,
+    saveScrollPosition: true,
+    transitionOnLoad: true
 });
+
+//路由表
 router.map({
-    '/index':{
-        component:App
+    '/':{				//首页
+        component: function (resolve) {
+            require(['./components/home.vue'],resolve)
+        }
+    },
+    '/home':{
+        name : 'home',				//首页
+        component: function (resolve) {
+            require(['./components/home.vue'],resolve)
+        }
+    },
+    '/blog':{
+        name : 'blog',               //博客列表
+        component: function (resolve) {
+            require(['./components/blog.vue'],resolve)
+        }
+    },
+    '/blog/topic':{
+        name : 'topic',
+        //文章详情
+        component: function (resolve) {
+            require(['./components/topic.vue'],resolve)
+        }
+    },
+    '/about':{
+        name : 'about',
+        //关于
+        component: function (resolve) {
+            require(['./components/about.vue'],resolve)
+        }
     }
-});
+})
 
-router.redirect({
-    '*': '/index'
-});
+//默认/重定向到home页
+// router.redirect({
+//     '/':"/home"
+// })
+router.afterEach(function (transition) {
+    console.log('成功浏览到: ' + transition.to.path)
+})
 
-router.start(App,'#app');
+router.start(app, "#app");

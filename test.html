@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+    <script>
+        $(function () {
+            $.ajax({
+                url:'http://hr.tuputech.com/recruit/v2/tree?seed=57e9c3a886b598797792861e',
+                type:'GET',
+                success:function (res) {
+                    console.log(res)
+                    res.tree.child.forEach (function (item,index) {
+                        $.ajax({
+                            url:'http://hr.tuputech.com/recruit/tree/'+item.type,
+                            type:'POST',
+                            success:function (r) {
+                                console.log(r);
+                            }
+                        })
+                    })
+
+                }
+            })
+        })
+    </script>
+</body>
+</html>
