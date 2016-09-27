@@ -1,75 +1,84 @@
-var path = require('path')
-var webpack = require('webpack')
+var path = require('path');
+var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var vue = require("vue-loader");
+
+
+//定义了一些文件夹的路径
+var ROOT_PATH = path.resolve(__dirname);
+console.log(ROOT_PATH)
+var APP_PATH = path.resolve(ROOT_PATH, 'src/main.js');
+var BUILD_PATH = path.resolve(ROOT_PATH, 'build');
+
+var plugins = [
+    //压缩js
+     //new webpack.optimize.UglifyJsPlugin({minimize: true}),
+    //提公用js到common.js文件中
+    new webpack.optimize.CommonsChunkPlugin('common.js'),
+    //将样式统一发布到style.css中
+    new ExtractTextPlugin("style.css", {
+        allChunks: true
+    }),
+    // 使用 ProvidePlugin 加载使用率高的依赖库
+    new webpack.ProvidePlugin({
+        $: 'webpack-zepto'
+    }),
+    //区分环境
+    new  webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify('production') // or development
+    })
+];
 
 module.exports = {
-    // 入口文件
-    entry: './src/main.js',
+  /*  //项目的文件夹 可以直接用文件夹名称 默认会找index.js 也可以确定是哪个文件名字
+    entry: {
+        build : APP_PATH
+    },
+    //输出的文件名 合并以后的js会命名为bundle.js
     output: {
-        // 打包后输出的目录
-        path: path.resolve(__dirname, './dist'),
-        // 打包后资源文件的前缀
-        publicPath: '/dist/',
-        filename: 'build.js'
+        path: BUILD_PATH,
+        filename: '[name].js',
+        // 指向异步加载的路径
+        publicPath : ROOT_PATH + '/build/',
+        // 非主文件的命名规则
+        chunkFilename: '[id].build.[chunkhash].js'
+    },*/
+    entry : './src/main.js',
+    output : {
+        path : './build',
+        publicPath : 'build/',
+        filename : 'build.js',
+        chunkFilename: '[id].build.[chunkhash].js'
     },
-    resolve: {
-        // require时省略的扩展名，如：require('module') 不需要module.js
-        extensions: ['', '.js', '.vue'],
-        // 别名
-        alias: {
-            components: path.join(__dirname, './src/components')
-        }
-    },
-    resolveLoader: {
-        root: path.join(__dirname, 'node_modules')
-    },
-    // 处理不同后缀的文件
     module: {
-        loaders: [{
-            test: /\.vue$/,
-            loader: 'vue'
-        }, {
-            test: /\.js$/,
-            loader: 'babel',
-            exclude: /node_modules/
-        }, {
-            test: /\.css$/,
-            loader: 'vue-style-loader!css-loader'
-        }, {
-            test: /\.less$/,
-            loader: 'vue-style-loader!css-loader!less-loader'
-        }, {
-            test: /\.(png|jpg|gif|svg)$/,
-            loader: 'file',
-            query: {
-                name: '[name].[ext]?[hash]'
-            }
-        }]
+        loaders: [
+            {
+                test: /\.vue$/,
+                loader: 'vue',
+            },
+            {
+                test: /\.css$/,
+                //loader : "style!css"
+                loader: ExtractTextPlugin.extract("style-loader", "css-loader")
+            },
+            {
+                test: /\.(png|jpg)$/,
+                loader: 'url?limit=40000'
+            },
+            // 转化ES6 语法
+            {
+                test: /\.js$/,
+                loader: 'babel-loader',
+                exclude: /node_modules/
+            },
+        ]
     },
-    // webpack-dev-server配置
-    devServer: {
-        historyApiFallback: true,
-        noInfo: true
+    vue: {
+        css: ExtractTextPlugin.extract("css"),
+        //sass: ExtractTextPlugin.extract("css!sass-loader")
     },
-    // 开启source-map，webpack有多种source-map，在官网文档可以查到
-    devtool: '#eval-source-map'
-}
-
-// 生产环境，运行npm run build则执行这里
-if (process.env.NODE_ENV === 'production') {
-    module.exports.devtool = '#source-map'
-    // http://vue-loader.vuejs.org/en/workflow/production.html
-    module.exports.plugins = (module.exports.plugins || []).concat([
-        // 环境变量
-        new webpack.DefinePlugin({
-            'process.env': {
-                NODE_ENV: '"production"'
-            }
-        }),
-        // 压缩代码
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false
-            }
-        })
-    ])
-}
+    babel: {
+        presets: ['es2015']
+    },
+    plugins: plugins
+};

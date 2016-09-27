@@ -1,5 +1,9 @@
+
 <template>
     <div>blog</div>
 </template>
-<script></script>
+<script>
+    import '../../static/scripts/jquery.min'
+    import '../../static/js/blog'
+</script>
 <style></style>

@@ -1,3 +1,1 @@
-(function () {
-    console.log("博客")
-})
+console.log("博客")
